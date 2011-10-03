@@ -20,9 +20,17 @@ app.use(express.static __dirname + "/public")
 app.register '.coffee', require('coffeekup').adapters.express
 
 app.get '/', (request, response) ->
-  response.render 'index', posts : [ (title: "A title", desc: "This post changed my life many times over.", date: "This post was recent.")
+  response.render 'index', posts : [ (title: "The Importance of Doing Important Things", desc: "This post changed my life many times over.", date: "This post was recent.")
                                    , (title: "Rawral", desc: "This post describes the many different ways of typing rawr. Very informative!", date: "This post was herp.")
                                    ]
+
+app.get "/entry/:id", (request, response) ->
+  id = request.params.id
+  response.render 'post', title: "This is a blog title", content: "Bogus content goes here."
+
+app.get "/admin", (request, response) ->
+  response.render 'admin'
+
 
 port = process.env.PORT || DEFAULT_PORT
 app.listen port, () ->
