@@ -1,0 +1,86 @@
+h1 {
+  /* text-shadow: 1px 2px 2px rgba(0,0,0,0.2); */ 
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: 4.1em;
+  font-weight: normal;
+  text-align: center;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:link {
+  color: #940;
+}
+
+a:hover {
+  /*color: #fc3;*/
+  color: #c60;
+}
+
+a:visited {
+  color: #e91;
+}
+
+.tagline {
+  text-align: center;
+  margin-top: -30px;
+  margin-bottom: 60px;
+}
+
+.detail {
+  font-size: 100%;
+  margin-top: 20px;
+  margin-bottom: 40px;
+  color: #333;
+  width: 40%;
+}
+
+.date {
+  color: #aaa;
+  font-size: .8em;
+}
+
+.blog-title {
+  font-size: 1.5em;
+}
+
+ol {
+  margin-left: 60px;
+  list-style-type: none;
+}
+
+li {
+  margin-left: 10px;
+  font-size 55px;
+}
+
+body {
+  font-family: "Helvetica Neue", "Lucida Grande", "Arial";
+  padding-left: 10%;
+  padding-right: 10%;
+  font-size 3em;
+}
+
+h2 {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-weight: normal;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 0px;
+}
+
+h3, h4 {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-weight: normal;
+}
+
+
+footer {
+  text-align: center;
+  padding-left: 10%;
+  padding-right: 10%;
+  padding-top: 100px;
+  color: #777;
+  font-size: .8em;
+}
