@@ -8,6 +8,8 @@ db = new sqlite.Database()
 
 DEFAULT_PORT = 1234
 
+SAMPLE_LENGTH = 10
+
 book_parse = (list) ->
   for file in list
     contents = fs.readFileSync BOOK_DIR + file, "UTF-8"
@@ -32,30 +34,45 @@ db_create = (callback) ->
 
       callback()
 
-app.get '/', (request, response) ->
-  response.render 'index', posts : [ (title: "The Importance of Doing Important Things", desc: "This post changed my life many times over.", date: "This post was recent.")
-                                   , (title: "Rawral", desc: "This post describes the many different ways of typing rawr. Very informative!", date: "This post was herp.")
-                                   ]
-
-app.get "/entry/:id", (request, response) ->
-  id = request.params.id
-  response.render 'post', title: "This is a blog title", content: "Bogus content goes here."
-
-app.get "/admin", (request, response) ->
-  console.log "ok..."
-  response.render 'admin'
-
-app.get "/allposts", (request, response) ->
+lookup = (sql, callback) ->
   db.open "db", (error) ->
     throw error if error
 
-    db.prepare "select * from posts", (error, statement) ->
+    db.prepare sql, (error, statement) ->
       throw error if error
-      statement.fetchAll (error, row) ->
+      statement.fetchAll (error, rows) ->
         throw error if error
 
-        response.render "post", content: row[0].content
+        callback(rows)
 
+trim_contents = (rows) ->
+  for row in rows
+    row.content = row.content.substring(0, SAMPLE_LENGTH) + "..."
+
+add_links = (rows) ->
+  number = 0
+  for row in rows
+    number += 1
+    row.link = "/entry/#{number}"
+
+
+#TODO: Translate to HTML first.
+app.get '/', (request, response) ->
+  lookup "select * from posts", (rows) ->
+    trim_contents rows
+    add_links rows
+
+    response.render 'index', posts : rows
+
+app.get "/entry/:id", (request, response) ->
+  id = request.params.id
+  lookup "select * from posts where rowid = #{id}", (rows) ->
+    response.render 'post', content: rows[0].content
+
+app.get "/admin", (request, response) ->
+  response.render 'admin'
+
+#TODO: Insert HTML as well...maybe?
 app.post "/admin", (request, response) ->
   content = request.body["new-content"]
 

@@ -5,17 +5,15 @@ html ->
     link rel: 'stylesheet', href: 'style.css'
 
   body ->
-    h1 'Blog'
-    div class: "tagline", -> "An arrangement of words."
+    h1 'Writing Club Fun!'
     ol ->
-      for section in ["Posts", "Stuff"]
-        h2 class: "blog-title", -> section
-        x = 0
-        for post in @posts
-          li ->
-            h3 -> a href:"/entry/#{x}", class: "blog-title", -> post.title
-            span class: "date", -> post.date
-          x += 1
+      h2 class: "blog-title", -> "Posts"
+
+      for post in @posts
+        li ->
+          h3 -> a href: post.link, class: "blog-title", -> "post."
+          div post.content
+          span class: "date", -> post.date
 
     footer ->
-      "This blog is open source."
+      "This website is open source."
