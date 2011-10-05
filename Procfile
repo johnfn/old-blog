@@ -1,1 +1,1 @@
-web: coffee web.js
+web: node web.js
