@@ -16,11 +16,12 @@ html ->
 
   body ->
     h1 'Admin'
-    form ->
-      textarea id: "new-content"
+    form method: "post", action: "/admin", ->
+      textarea name: "new-content", id: "new-content"
       div id: "rendered-content", -> "Blah blah blah stuff harp"
 
-      div -> input type:"submit", id: "submit-button", action: "post"
+      div -> input type:"submit", id: "submit-button"
+    div "Some tips: *italic* **bold**"
 
     footer ->
       "This blog is open source."
