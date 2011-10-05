@@ -29,7 +29,7 @@ db_create = (callback) ->
   db.open "db", (error) ->
     throw error if error
 
-    db.execute "create table posts (content)", (error) ->
+    db.execute "create table posts (content, author)", (error) ->
       # throw error if error
 
       callback()
@@ -45,10 +45,6 @@ lookup = (sql, callback) ->
 
         callback(rows)
 
-trim_contents = (rows) ->
-  for row in rows
-    row.content = row.content.substring(0, SAMPLE_LENGTH) + "..."
-
 add_links = (rows) ->
   number = 0
   for row in rows
@@ -59,15 +55,33 @@ add_links = (rows) ->
 #TODO: Translate to HTML first.
 app.get '/', (request, response) ->
   lookup "select * from posts", (rows) ->
-    trim_contents rows
     add_links rows
+    rows.reverse()
 
     response.render 'index', posts : rows
 
 app.get "/entry/:id", (request, response) ->
   id = request.params.id
   lookup "select * from posts where rowid = #{id}", (rows) ->
-    response.render 'post', content: rows[0].content
+    response.render 'post', content: rows[0].content, author: rows[0].author
+
+app.get "/edit/entry/:id", (request, response) ->
+  id = request.params.id
+  lookup "select * from posts where rowid = #{id}", (rows) ->
+    response.render 'admin', content: rows[0].content, author: rows[0].author, action: "/edit/entry/#{id}"
+
+app.post "/edit/entry/:id", (request, response) ->
+  id = request.params.id
+  content = request.body["new-content"]
+  author = request.body["author"]
+
+  db.open "db", (error) ->
+    throw error if error
+
+    db.execute "update posts set content='#{content}', author='#{author}' where rowid = #{id}", ->
+      throw error if error
+
+      response.redirect "/"
 
 app.get "/admin", (request, response) ->
   response.render 'admin'
@@ -75,15 +89,16 @@ app.get "/admin", (request, response) ->
 #TODO: Insert HTML as well...maybe?
 app.post "/admin", (request, response) ->
   content = request.body["new-content"]
+  author = request.body["author"]
 
   db_create ->
     db.open "db", (error) ->
       throw error if error
 
-      db.execute "insert into posts (content) values ('#{content}')", (error) ->
+      db.execute "insert into posts (content, author) values ('#{content}', '#{author}')", (error) ->
         throw error if error
 
-      response.redirect("/")
+        response.redirect("/")
 
 port = process.env.PORT || DEFAULT_PORT
 app.listen port, () ->
