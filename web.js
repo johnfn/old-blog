@@ -66,11 +66,13 @@
     return _results;
   };
   app.get('/', function(request, response) {
-    return lookup("select * from posts", function(rows) {
-      add_links(rows);
-      rows.reverse();
-      return response.render('index', {
-        posts: rows
+    return db_create(function() {
+      return lookup("select * from posts", function(rows) {
+        add_links(rows);
+        rows.reverse();
+        return response.render('index', {
+          posts: rows
+        });
       });
     });
   });

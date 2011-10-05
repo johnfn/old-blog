@@ -54,11 +54,12 @@ add_links = (rows) ->
 
 #TODO: Translate to HTML first.
 app.get '/', (request, response) ->
-  lookup "select * from posts", (rows) ->
-    add_links rows
-    rows.reverse()
+  db_create ->
+    lookup "select * from posts", (rows) ->
+      add_links rows
+      rows.reverse()
 
-    response.render 'index', posts : rows
+      response.render 'index', posts : rows
 
 app.get "/entry/:id", (request, response) ->
   id = request.params.id
