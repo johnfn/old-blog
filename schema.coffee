@@ -1,5 +1,5 @@
 pg = require 'pg'
-con_string = DATABASE_URL || "tcp://grant:a@localhost:5432/bestdb"
+con_string = process.env.DATABASE_URL || "tcp://grant:a@localhost:5432/bestdb"
 
 db = new pg.Client(con_string)
 db.connect()
