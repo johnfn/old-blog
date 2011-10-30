@@ -1,10 +1,13 @@
 express = require 'express'
+pg = require 'pg'
 fs = require 'fs'
 converter = new (require 'showdown').Showdown.converter()
 util = require 'util'
-sqlite = require 'sqlite'
 
-db = new sqlite.Database()
+con_string = "tcp://grant:a@localhost:5432/bestdb"
+
+db = new pg.Client(con_string)
+db.connect()
 
 DEFAULT_PORT = 1234
 
@@ -25,6 +28,7 @@ app.use express.bodyParser()
 
 app.register '.coffee', require('coffeekup').adapters.express
 
+###
 db_create = (callback) ->
   db.open "db", (error) ->
     throw error if error
@@ -33,17 +37,14 @@ db_create = (callback) ->
       # throw error if error
 
       callback()
+###
 
-lookup = (sql, callback) ->
-  db.open "db", (error) ->
-    throw error if error
+lookup = (query, cb) ->
+  query = db.query query
+  results = []
 
-    db.prepare sql, (error, statement) ->
-      throw error if error
-      statement.fetchAll (error, rows) ->
-        throw error if error
-
-        callback(rows)
+  query.on 'row', (row) -> results.push row
+  query.on 'end', -> cb results
 
 add_links = (rows) ->
   number = 0
@@ -54,12 +55,11 @@ add_links = (rows) ->
 
 #TODO: Translate to HTML first.
 app.get '/', (request, response) ->
-  db_create ->
-    lookup "select * from posts", (rows) ->
-      add_links rows
-      rows.reverse()
+  lookup "select * from posts", (rows) ->
+    add_links rows
+    rows.reverse()
 
-      response.render 'index', posts : rows
+    response.render 'index', posts : rows
 
 app.get "/entry/:id", (request, response) ->
   id = request.params.id
@@ -76,13 +76,10 @@ app.post "/edit/entry/:id", (request, response) ->
   content = request.body["new-content"]
   author = request.body["author"]
 
-  db.open "db", (error) ->
-    throw error if error
+  db.query "update posts set content='#{content}', author='#{author}' where rowid = #{id}"
+  throw error if error
 
-    db.execute "update posts set content='#{content}', author='#{author}' where rowid = #{id}", ->
-      throw error if error
-
-      response.redirect "/"
+  response.redirect "/"
 
 app.get "/admin", (request, response) ->
   response.render 'admin'
@@ -92,14 +89,8 @@ app.post "/admin", (request, response) ->
   content = request.body["new-content"]
   author = request.body["author"]
 
-  db_create ->
-    db.open "db", (error) ->
-      throw error if error
-
-      db.execute "insert into posts (content, author) values ('#{content}', '#{author}')", (error) ->
-        throw error if error
-
-        response.redirect("/")
+  db.query "insert into posts (content, author) values ('#{content}', '#{author}')"
+  response.redirect("/")
 
 port = process.env.PORT || DEFAULT_PORT
 app.listen port, () ->
