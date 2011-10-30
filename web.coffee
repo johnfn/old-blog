@@ -4,7 +4,7 @@ fs = require 'fs'
 converter = new (require 'showdown').Showdown.converter()
 util = require 'util'
 
-con_string = "tcp://grant:a@localhost:5432/bestdb"
+con_string = DATABASE_URL || "tcp://grant:a@localhost:5432/bestdb"
 
 db = new pg.Client(con_string)
 db.connect()
